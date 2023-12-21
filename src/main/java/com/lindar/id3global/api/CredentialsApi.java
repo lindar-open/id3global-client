@@ -1,7 +1,7 @@
 package com.lindar.id3global.api;
 
 import com.lindar.id3global.schema.GlobalAccount;
-import com.lindar.id3global.vo.AccessCredentials;
+import com.lindar.id3global.vo.AccessSettings;
 import com.lindar.id3global.schema.CheckCredentials;
 import com.lindar.id3global.schema.CheckCredentialsResponse;
 import com.lindar.id3global.support.DelegatingWebServiceMessageCallback;
@@ -20,14 +20,14 @@ public class CredentialsApi extends BaseApi {
     private final WebServiceMessageCallback CHECK_CREDENTIALS_CALLBACK;
 
 
-    public CredentialsApi(AccessCredentials accessCredentials, WebServiceTemplate webServiceTemplate) {
-        super(ENDPOINT, accessCredentials, webServiceTemplate);
+    public CredentialsApi(AccessSettings accessSettings, WebServiceTemplate webServiceTemplate) {
+        super(ENDPOINT, accessSettings, webServiceTemplate);
 
         this.CHECK_CREDENTIALS_CALLBACK =  new DelegatingWebServiceMessageCallback(Collections.singletonList(new SoapActionCallback(CHECK_CREDENTIALS_ACTION)));
     }
 
     public GlobalAccount checkCredentials() {
-        return checkCredentials(accessCredentials.getUsername(), accessCredentials.getPassword());
+        return checkCredentials(accessSettings.getUsername(), accessSettings.getPassword());
     }
 
     public GlobalAccount checkCredentials(@NonNull String username, @NonNull String password){

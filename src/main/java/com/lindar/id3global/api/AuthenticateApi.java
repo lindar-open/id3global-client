@@ -1,7 +1,7 @@
 package com.lindar.id3global.api;
 
 
-import com.lindar.id3global.vo.AccessCredentials;
+import com.lindar.id3global.vo.AccessSettings;
 import com.lindar.id3global.schema.*;
 import com.lindar.id3global.support.DelegatingWebServiceMessageCallback;
 import com.lindar.id3global.support.WSSESecurityHeaderRequestWebServiceMessageCallback;
@@ -26,8 +26,8 @@ public class AuthenticateApi extends BaseApi {
     private final WebServiceMessageCallback AUTHENTICATE_MP_CALLBACK;
     private final WebServiceMessageCallback INCREMENTAL_VERIFICATION_CALLBACK;
 
-    public AuthenticateApi(AccessCredentials accessCredentials, WebServiceTemplate webServiceTemplate, WSSESecurityHeaderRequestWebServiceMessageCallback authenticationCallback) {
-        super(ENDPOINT, accessCredentials, webServiceTemplate);
+    public AuthenticateApi(AccessSettings accessSettings, WebServiceTemplate webServiceTemplate, WSSESecurityHeaderRequestWebServiceMessageCallback authenticationCallback) {
+        super(ENDPOINT, accessSettings, webServiceTemplate);
 
         this.AUTHENTICATE_SP_CALLBACK =  new DelegatingWebServiceMessageCallback(Arrays.asList(authenticationCallback, new SoapActionCallback(AUTHENTICATE_SP_ACTION)));
         this.AUTHENTICATE_MP_CALLBACK =  new DelegatingWebServiceMessageCallback(Arrays.asList(authenticationCallback, new SoapActionCallback(AUTHENTICATE_MP_ACTION)));

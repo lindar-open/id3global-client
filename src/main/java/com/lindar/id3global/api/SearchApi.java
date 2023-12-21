@@ -5,7 +5,7 @@ import com.lindar.id3global.enums.AuthenticationsSortType;
 import com.lindar.id3global.schema.*;
 import com.lindar.id3global.support.DelegatingWebServiceMessageCallback;
 import com.lindar.id3global.support.WSSESecurityHeaderRequestWebServiceMessageCallback;
-import com.lindar.id3global.vo.AccessCredentials;
+import com.lindar.id3global.vo.AccessSettings;
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.ws.client.core.WebServiceMessageCallback;
@@ -26,8 +26,8 @@ public class SearchApi extends BaseApi {
     private final WebServiceMessageCallback PEP_INTELLIGENCE_DATA_CALLBACK;
     private final WebServiceMessageCallback AUTHENTICATIONS_CALLBACK;
 
-    public SearchApi(AccessCredentials accessCredentials, WebServiceTemplate webServiceTemplate, WSSESecurityHeaderRequestWebServiceMessageCallback authenticationCallback) {
-        super(ENDPOINT, accessCredentials, webServiceTemplate);
+    public SearchApi(AccessSettings accessSettings, WebServiceTemplate webServiceTemplate, WSSESecurityHeaderRequestWebServiceMessageCallback authenticationCallback) {
+        super(ENDPOINT, accessSettings, webServiceTemplate);
 
         this.AUTHENTICATION_DETAILS_CALLBACK =  new DelegatingWebServiceMessageCallback(Arrays.asList(authenticationCallback, new SoapActionCallback(AUTHENTICATION_DETAILS_ACTION)));
         this.PEP_INTELLIGENCE_DATA_CALLBACK =  new DelegatingWebServiceMessageCallback(Arrays.asList(authenticationCallback, new SoapActionCallback(PEP_INTELLIGENCE_DATA_ACTION)));
@@ -35,7 +35,7 @@ public class SearchApi extends BaseApi {
     }
 
     public GlobalAuthenticationDetails getAuthenticationDetails(@NonNull String authenticationId) {
-        return getAuthenticationDetails(authenticationId, accessCredentials.getOrgId());
+        return getAuthenticationDetails(authenticationId, accessSettings.getOrgId());
     }
 
     public GlobalAuthenticationDetails getAuthenticationDetails(@NonNull String authenticationId, @NonNull String orgId){
@@ -47,7 +47,7 @@ public class SearchApi extends BaseApi {
     }
 
     public GlobalPEPIntelligenceData getPEPIntelligenceData(@NonNull String sanctionId) {
-        return getPEPIntelligenceData(sanctionId, accessCredentials.getOrgId());
+        return getPEPIntelligenceData(sanctionId, accessSettings.getOrgId());
     }
 
     public GlobalPEPIntelligenceData getPEPIntelligenceData(@NonNull String sanctionId, @NonNull String orgId){
@@ -59,7 +59,7 @@ public class SearchApi extends BaseApi {
     }
 
     public GlobalAuthentications getAuthentications(ZonedDateTime startDate, ZonedDateTime endDate, AuthenticationsSearchType searchType, String searchValue, long page, long pageSize, AuthenticationsSortType sortType, boolean descendingOrder) {
-        return getAuthentications(startDate, endDate, searchType, searchValue, page, pageSize, sortType, descendingOrder, accessCredentials.getOrgId());
+        return getAuthentications(startDate, endDate, searchType, searchValue, page, pageSize, sortType, descendingOrder, accessSettings.getOrgId());
     }
 
     public GlobalAuthentications getAuthentications(ZonedDateTime startDate, ZonedDateTime endDate, AuthenticationsSearchType searchType, String searchValue, long page, long pageSize, AuthenticationsSortType sortType, boolean descendingOrder, String orgId){

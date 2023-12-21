@@ -4,9 +4,10 @@ import com.lindar.id3global.api.AuthenticateApi;
 import com.lindar.id3global.api.CredentialsApi;
 import com.lindar.id3global.api.SearchApi;
 import com.lindar.id3global.support.WSSESecurityHeaderRequestWebServiceMessageCallback;
-import com.lindar.id3global.vo.AccessCredentials;
+import com.lindar.id3global.vo.AccessSettings;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.ws.client.core.WebServiceTemplate;
+import org.springframework.ws.transport.http.HttpComponentsMessageSender;
 
 public class ID3GlobalClient {
 
@@ -16,13 +17,13 @@ public class ID3GlobalClient {
     private final SearchApi searchApi;
     private final CredentialsApi credentialsApi;
 
-    private ID3GlobalClient(AccessCredentials accessCredentials){
-        WSSESecurityHeaderRequestWebServiceMessageCallback authenticationCallback = new WSSESecurityHeaderRequestWebServiceMessageCallback(accessCredentials.getUsername(), accessCredentials.getPassword());
-        WebServiceTemplate webServiceTemplate = buildWebServiceTemplate();
+    private ID3GlobalClient(AccessSettings accessSettings){
+        WSSESecurityHeaderRequestWebServiceMessageCallback authenticationCallback = new WSSESecurityHeaderRequestWebServiceMessageCallback(accessSettings.getUsername(), accessSettings.getPassword());
+        WebServiceTemplate webServiceTemplate = buildWebServiceTemplate(accessSettings.getReadTimeout(), accessSettings.getConnectionTimeout());
 
-        this.authenticateApi = new AuthenticateApi(accessCredentials, webServiceTemplate, authenticationCallback);
-        this.searchApi = new SearchApi(accessCredentials, webServiceTemplate, authenticationCallback);
-        this.credentialsApi = new CredentialsApi(accessCredentials, webServiceTemplate);
+        this.authenticateApi = new AuthenticateApi(accessSettings, webServiceTemplate, authenticationCallback);
+        this.searchApi = new SearchApi(accessSettings, webServiceTemplate, authenticationCallback);
+        this.credentialsApi = new CredentialsApi(accessSettings, webServiceTemplate);
     }
 
     public AuthenticateApi authenticate() {
@@ -38,27 +39,41 @@ public class ID3GlobalClient {
     }
 
     public static ID3GlobalClient build(String apiUrl, String username, String password, String defaultProfileId, int defaultProfileVersion, String defaultOrgId) {
-        AccessCredentials accessCredentials = new AccessCredentials();
-        accessCredentials.setApiUrl(apiUrl);
-        accessCredentials.setProfileId(defaultProfileId);
-        accessCredentials.setProfileVersion(defaultProfileVersion);
-        accessCredentials.setUsername(username);
-        accessCredentials.setPassword(password);
-        accessCredentials.setOrgId(defaultOrgId);
-        return new ID3GlobalClient(accessCredentials);
+        AccessSettings accessSettings = new AccessSettings();
+        accessSettings.setApiUrl(apiUrl);
+        accessSettings.setProfileId(defaultProfileId);
+        accessSettings.setProfileVersion(defaultProfileVersion);
+        accessSettings.setUsername(username);
+        accessSettings.setPassword(password);
+        accessSettings.setOrgId(defaultOrgId);
+        return new ID3GlobalClient(accessSettings);
     }
 
-    public static ID3GlobalClient build(AccessCredentials accessCredentials){
-        return new ID3GlobalClient(accessCredentials);
+    public static ID3GlobalClient build(AccessSettings accessSettings) {
+        return new ID3GlobalClient(accessSettings);
     }
 
-    private WebServiceTemplate buildWebServiceTemplate(){
+    private WebServiceTemplate buildWebServiceTemplate(int readTimeout, int connectionTimeout){
+        HttpComponentsMessageSender httpComponentsMessageSender = buildMessageSender(readTimeout, connectionTimeout);
+
         Jaxb2Marshaller jaxb2Marshaller = buildMarshaller();
         WebServiceTemplate webServiceTemplate = new WebServiceTemplate();
+        webServiceTemplate.setMessageSender(httpComponentsMessageSender);
         webServiceTemplate.setMarshaller(jaxb2Marshaller);
         webServiceTemplate.setUnmarshaller(jaxb2Marshaller);
 
         return webServiceTemplate;
+    }
+
+    private static HttpComponentsMessageSender buildMessageSender(int readTimeout, int connectionTimeout) {
+        HttpComponentsMessageSender httpComponentsMessageSender = new HttpComponentsMessageSender();
+        if (connectionTimeout > 0) {
+            httpComponentsMessageSender.setConnectionTimeout(connectionTimeout);
+        }
+        if (readTimeout > 0) {
+            httpComponentsMessageSender.setReadTimeout(readTimeout);
+        }
+        return httpComponentsMessageSender;
     }
 
     private Jaxb2Marshaller buildMarshaller(){
